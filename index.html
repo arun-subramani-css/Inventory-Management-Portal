@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .sidebar a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 10px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ecf0f1;
+        }
+        .hidden {
+            display: none;
+        }
+        .chart-container, .low-stock-container {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .low-stock-container {
+            border: 2px solid rgb(255, 255, 255);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Inventory MS</h2>
+        <a onclick="showPage('dashboard')">Dashboard</a>
+        <a onclick="showPage('category')">Category</a>
+        <a onclick="showPage('products')">Products</a>
+        <a onclick="showPage('orders')">Orders</a>
+        <a onclick="showPage('suppliers')">Suppliers</a>
+        <a onclick="showPage('analytics')">Analytics</a>
+    </div>
+    <div class="content">
+        <div id="dashboard" class="page">
+            <h1>Dashboard</h1>
+            <div style="display: flex; gap: 20px;">
+                <div class="chart-container">
+                    <h2>Total Sales</h2>
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h2>Profit & Loss</h2>
+                    <canvas id="profitLossChart"></canvas>
+                </div>
+            </div>
+            <div class="low-stock-container">
+                <h2>Low Stock Products</h2>
+                <table id="lowStockTable">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div id="category" class="page hidden">
+            <h1>Category Page</h1>
+        </div>
+        <div id="products" class="page hidden">
+            <h1>Products Page</h1>
+            <div>
+                <input type="text" id="productName" placeholder="Enter product name">
+                <input type="number" id="productQuantity" placeholder="Enter quantity">
+                <button onclick="addProduct()">Add Product</button>
+            </div>
+            <div>
+                <h3>Available Products</h3>
+                <ul id="productList"></ul>
+            </div>
+        </div>
+        <div id="orders" class="page hidden">
+            <h1>Orders Page</h1>
+        </div>
+        <div id="suppliers" class="page hidden">
+            <h1>Suppliers Page</h1>
+        </div>
+        <div id="analytics" class="page hidden">
+            <h1>Analytics Page</h1>
+        </div>
+    </div>
+
+    <script>
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        const products = [];
+
+        function addProduct() {
+            let name = document.getElementById("productName").value.trim();
+            let quantity = parseInt(document.getElementById("productQuantity").value.trim());
+
+            if (name && !isNaN(quantity)) {
+                products.push({ name, quantity });
+                updateProductList();
+                updateLowStockTable();
+                document.getElementById("productName").value = "";
+                document.getElementById("productQuantity").value = "";
+            }
+        }
+
+        function updateProductList() {
+            let productList = document.getElementById("productList");
+            productList.innerHTML = "";
+            products.forEach(product => {
+                let li = document.createElement("li");
+                li.textContent = `${product.name} (Qty: ${product.quantity})`;
+                productList.appendChild(li);
+            });
+        }
+
+        function updateLowStockTable() {
+            let lowStockTableBody = document.getElementById("lowStockTable").querySelector("tbody");
+            lowStockTableBody.innerHTML = "";
+            let lowStockProducts = products.filter(product => product.quantity < 5);
+
+            lowStockProducts.forEach(product => {
+                let row = document.createElement("tr");
+                row.innerHTML = `<td>${product.name}</td><td>${product.quantity}</td>`;
+                lowStockTableBody.appendChild(row);
+            });
+        }
+
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        const profitLossCtx = document.getElementById('profitLossChart').getContext('2d');
+
+        new Chart(salesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Total Sales',
+                    data: [120, 150, 180, 220, 260, 300],
+                    backgroundColor: 'blue'
+                }]
+            }
+        });
+
+        new Chart(profitLossCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: 'Profit',
+                        data: [50, 80, 60, 100, 150, 200],
+                        borderColor: 'green',
+                        backgroundColor: 'rgba(0, 128, 0, 0.2)',
+                        fill: true
+                    },
+                    {
+                        label: 'Loss',
+                        data: [30, 20, 40, 10, 5, 0],
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
