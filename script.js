@@ -47,7 +47,7 @@
         const profitLossCtx = document.getElementById('profitLossChart').getContext('2d');
 
         new Chart(salesCtx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
                 datasets: [{
