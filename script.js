@@ -53,7 +53,7 @@
                 datasets: [{
                     label: 'Total Sales',
                     data: [120, 150, 180, 220, 260, 300],
-                    backgroundColor: 'blue'
+                    backgroundColor: ''
                 }]
             }
         });
