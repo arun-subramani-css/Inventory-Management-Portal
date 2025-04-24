@@ -1,74 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Management System</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Management System</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <h2>Inventory MS</h2>
-        <a onclick="showPage('dashboard')">Dashboard</a>
-        <a onclick="showPage('category')">Category</a>
-        <a onclick="showPage('products')">Products</a>
-        <a onclick="showPage('orders')">Orders</a>
-        <a onclick="showPage('suppliers')">Suppliers</a>
-        <a onclick="showPage('analytics')">Analytics</a>
+  <div class="sidebar">
+    <h2>Inventory MS</h2>
+    <nav>
+      <a onclick="showPage('dashboard')" class="active">
+        <span>Dashboard</span>
+      </a>
+      <a onclick="showPage('products')">
+        <span>Products</span>
+      </a>
+      <a onclick="showPage('orders')">
+        <span>Orders</span>
+      </a>
+      <a onclick="showPage('analytics')">
+        <span>Analytics</span>
+      </a>
+    </nav>
+  </div>
+
+  <div class="content">
+    <div id="dashboard" class="page">
+      <div class="dashboard-header">
+        <header>
+          <h1>Dashboard</h1>
+          <p class="subtitle">Welcome to your inventory management dashboard</p>
+        </header>
+        <div class="auth-section">
+          <button id="loginButton" class="login-button" onclick="signInWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="google-icon">
+            Sign in with Google
+          </button>
+        </div>
+      </div>
+      
+      <div class="dashboard-grid">
+        <div class="chart-container">
+          <h2>Total Sales</h2>
+          <canvas id="salesChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2>Profit & Loss</h2>
+          <canvas id="profitLossChart"></canvas>
+        </div>
+      </div>
+
+      <div class="dashboard-sections">
+        <div class="low-stock-container">
+          <h2>Low Stock Products</h2>
+          <div class="table-container">
+            <table id="lowStockTable">
+              <thead>
+                <tr>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="content">
-        <div id="dashboard" class="page">
-            <h1>Dashboard</h1>
-            <div style="display: flex; gap: 20px;">
-                <div class="chart-container">
-                    <h2>Total Sales</h2>
-                    <canvas id="salesChart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h2>Profit & Loss</h2>
-                    <canvas id="profitLossChart"></canvas>
-                </div>
-            </div>
-            <div class="low-stock-container">
-                <h2>Low Stock Products</h2>
-                <table id="lowStockTable">
-                    <thead>
-                        <tr>
-                            <th>Product Name</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <div id="category" class="page hidden">
-            <h1>Category Page</h1>
-        </div>
-        <div id="products" class="page hidden">
-            <h1>Products Page</h1>
-            <div>
-                <input type="text" id="productName" placeholder="Enter product name">
-                <input type="number" id="productQuantity" placeholder="Enter quantity">
-                <button onclick="addProduct()">Add Product</button>
-            </div>
-            <div>
-                <h3>Available Products</h3>
-                <ul id="productList"></ul>
-            </div>
-        </div>
-        <div id="orders" class="page hidden">
-            <h1>Orders Page</h1>
-        </div>
-        <div id="suppliers" class="page hidden">
-            <h1>Suppliers Page</h1>
-        </div>
-        <div id="analytics" class="page hidden">
-            <h1>Analytics Page</h1>
-        </div>
+
+    <div id="products" class="page hidden">
+      <header>
+        <h1>Product Management</h1>
+        <p class="subtitle">Manage your product inventory</p>
+      </header>
+      <div class="product-form-container">
+        <input type="text" id="productName" placeholder="Product Name" />
+        <input type="number" id="productQuantity" placeholder="Quantity" />
+        <input type="number" id="productPrice" placeholder="Price" />
+        <button onclick="addProduct()">Add Product</button>
+      </div>
+      <div class="product-list-container">
+        <h3>Available Products</h3>
+        <ul id="productList" class="product-list"></ul>
+      </div>
     </div>
-    <script src="script.js"></script>
-   
+
+    <div id="orders" class="page hidden">
+      <header>
+        <h1>Order Management</h1>
+        <p class="subtitle">Track and manage your orders</p>
+      </header>
+      <div class="order-list-container">
+        <h3>Recent Orders</h3>
+        <table id="orderTable">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="analytics" class="page hidden">
+      <header>
+        <h1>Analytics</h1>
+        <p class="subtitle">View detailed analytics and reports</p>
+      </header>
+      <div class="analytics-grid">
+        <div class="chart-container">
+          <h2>Sales Trends</h2>
+          <canvas id="salesTrendsChart"></canvas>
+        </div>
+        <div class="chart-container">
+          <h2>Top Products</h2>
+          <canvas id="topProductsChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
