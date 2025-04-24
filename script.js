@@ -25,12 +25,26 @@ auth.onAuthStateChanged((user) => {
         // User is signed in
         document.getElementById('loginButton').classList.add('hidden');
         document.getElementById('userInfo').classList.remove('hidden');
-        document.getElementById('userPhoto').src = user.photoURL;
-        document.getElementById('userName').textContent = user.displayName;
+        
+        // Update user profile information
+        const userPhoto = document.getElementById('userPhoto');
+        const userName = document.getElementById('userName');
+        const userEmail = document.getElementById('userEmail');
+        
+        userPhoto.src = user.photoURL || 'https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/default-profile.png';
+        userName.textContent = user.displayName || 'User';
+        userEmail.textContent = user.email || '';
+        
+        // Update welcome message
+        document.querySelector('.subtitle').textContent = `Welcome, ${user.displayName || 'User'}!`;
+        
+        console.log("User is signed in:", user);
     } else {
         // User is signed out
         document.getElementById('loginButton').classList.remove('hidden');
         document.getElementById('userInfo').classList.add('hidden');
+        document.querySelector('.subtitle').textContent = 'Welcome to your inventory management dashboard';
+        console.log("User is signed out");
     }
 });
 
