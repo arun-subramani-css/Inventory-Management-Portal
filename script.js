@@ -472,7 +472,7 @@ function initializeCharts() {
     window.salesChart = new Chart(salesCtx, {
         type: "line",
         data: {
-            labels: [],
+            labels: [20,30,650],
             datasets: [{
                 label: "Total Sales",
                 data: [],
